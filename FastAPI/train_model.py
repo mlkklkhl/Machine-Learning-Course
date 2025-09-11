@@ -59,86 +59,95 @@ print(mapping, '\n')
 # Display descriptive statistics of the dataset after preprocessing
 print(df.describe(include='all').to_string(), '\n')
 
-# # Prepare the data for modeling
-# Split the dataset into features and target variable
-X = df.drop('Outcome Variable', axis=1)
-y = df['Outcome Variable']
+#############################################################################
+############################## STEP 2 #######################################
+# # # Prepare the data for modeling
+# # Split the dataset into features and target variable
+# X = df.drop('Outcome Variable', axis=1)
+# y = df['Outcome Variable']
 
-# K-fold cross-validation with stratification
-from sklearn.model_selection import StratifiedKFold
+# # K-fold cross-validation with stratification
+# from sklearn.model_selection import StratifiedKFold
+# 
+# # Instantiate the StratifiedKFold object
+# skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
+# 
+# # Split the dataset into training and testing sets
+# for train_index, test_index in skf.split(X, y):
+#     X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+#     y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+# 
+# # Display the shape of the training and testing sets
+# print('X_train shape:', X_train.shape)
+# print('X_test shape:', X_test.shape)
+# print('y_train shape:', y_train.shape)
+# print('y_test shape:', y_test.shape, '\n')
 
-# Instantiate the StratifiedKFold object
-skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
-
-# Split the dataset into training and testing sets
-for train_index, test_index in skf.split(X, y):
-    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
-    y_train, y_test = y.iloc[train_index], y.iloc[test_index]
-
-# Display the shape of the training and testing sets
-print('X_train shape:', X_train.shape)
-print('X_test shape:', X_test.shape)
-print('y_train shape:', y_train.shape)
-print('y_test shape:', y_test.shape, '\n')
-
-# # Train Model using RandomForestClassifier
-from sklearn.ensemble import RandomForestClassifier
-rf = RandomForestClassifier()
-
-# # GridSearchCV
-from sklearn.model_selection import GridSearchCV
-
-# Create the parameter grid
-param_grid_rf = {'n_estimators': [50, 100, 150, 200],
-                    'max_depth': [3, 5, 7, 9, 11],
-                    'min_samples_split': [2, 4, 6, 8, 10],
-                    'min_samples_leaf': [1, 2, 3, 4, 5]}
-
-# Instantiate the GridSearchCV object
-grid_search = GridSearchCV(estimator=rf, param_grid=param_grid_rf, cv=5, n_jobs=-1,
-                           verbose=2, scoring='accuracy', refit=True)
-
-# Fit the GridSearchCV object
-grid_search.fit(X_train, y_train)
-# Get the best model
-best_model = grid_search.best_estimator_
-
-# # Evaluate Model
-y_pred = best_model.predict(X_test)
-
-# Calculate the classification report
-from sklearn.metrics import classification_report
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-
-print('Random Forest Classification Report:')
-print(classification_report(y_test, y_pred), '\n')
-
-# Calculate the accuracy
-accuracy = accuracy_score(y_test, y_pred)
-presicion = precision_score(y_test, y_pred, average='weighted')
-recall = recall_score(y_test, y_pred, average='weighted')
-f1 = f1_score(y_test, y_pred, average='weighted')
-print('Random Forest Accuracy: {0}, Precision: {1}, Recall: {2}, F1 Score: {3}'
-      .format(accuracy, presicion, recall, f1), '\n')
-
-# Plot confusion matrix
-from sklearn.metrics import ConfusionMatrixDisplay
-ConfusionMatrixDisplay.from_estimator(best_model, X_test, y_test)
-plt.title('Random Forest Confusion Matrix')
-plt.show()
+############################################################################
+############################## STEP 3 ######################################
+# # # Train Model using RandomForestClassifier
+# from sklearn.ensemble import RandomForestClassifier
+# rf = RandomForestClassifier()
+# 
+# # # GridSearchCV
+# from sklearn.model_selection import GridSearchCV
+# 
+# # Create the parameter grid
+# param_grid_rf = {'n_estimators': [50, 100, 150, 200],
+#                     'max_depth': [3, 5, 7, 9, 11],
+#                     'min_samples_split': [2, 4, 6, 8, 10],
+#                     'min_samples_leaf': [1, 2, 3, 4, 5]}
+# 
+# # Instantiate the GridSearchCV object
+# grid_search = GridSearchCV(estimator=rf, param_grid=param_grid_rf, cv=5, n_jobs=-1,
+#                            verbose=2, scoring='accuracy', refit=True)
+# 
+# # Fit the GridSearchCV object
+# grid_search.fit(X_train, y_train)
+# # Get the best model
+# best_model = grid_search.best_estimator_
 
 
-# # Save the model
-import joblib
+#############################################################################
+############################## STEP 4 #######################################
+# # # Evaluate Model
+# y_pred = best_model.predict(X_test)
+# 
+# # Calculate the classification report
+# from sklearn.metrics import classification_report
+# from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+# 
+# print('Random Forest Classification Report:')
+# print(classification_report(y_test, y_pred), '\n')
+# 
+# # Calculate the accuracy
+# accuracy = accuracy_score(y_test, y_pred)
+# presicion = precision_score(y_test, y_pred, average='weighted')
+# recall = recall_score(y_test, y_pred, average='weighted')
+# f1 = f1_score(y_test, y_pred, average='weighted')
+# print('Random Forest Accuracy: {0}, Precision: {1}, Recall: {2}, F1 Score: {3}'
+#       .format(accuracy, presicion, recall, f1), '\n')
+# 
+# # Plot confusion matrix
+# from sklearn.metrics import ConfusionMatrixDisplay
+# ConfusionMatrixDisplay.from_estimator(best_model, X_test, y_test)
+# plt.title('Random Forest Confusion Matrix')
+# plt.show()
 
-# Create a directory named models if it does not exist
-import os
-if not os.path.exists('models'):
-    os.makedirs('models')
 
-# Save the best model as a pickle file and name it with models_label
-joblib.dump(best_model, 'models/best_model.pkl')
-# Save the mapping as a pickle file
-joblib.dump(mapping, 'models/mapping.pkl')
-# Save the column names as a pickle file
-joblib.dump(X.columns, 'models/columns.pkl')
+#############################################################################
+############################## STEP 5 #######################################
+# # # Save the model
+# import joblib
+# 
+# # Create a directory named models if it does not exist
+# import os
+# if not os.path.exists('models'):
+#     os.makedirs('models')
+# 
+# # Save the best model as a pickle file and name it with models_label
+# joblib.dump(best_model, 'models/best_model.pkl')
+# # Save the mapping as a pickle file
+# joblib.dump(mapping, 'models/mapping.pkl')
+# # Save the column names as a pickle file
+# joblib.dump(X.columns, 'models/columns.pkl')
